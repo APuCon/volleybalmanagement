@@ -1,0 +1,1234 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<title>Volleybal Rotatie-tracker</title>
+<link rel="icon" href="data:,">
+<link rel="manifest" href="./manifest.webmanifest">
+<meta name="theme-color" content="#142138">
+<style>
+:root {
+  --court-navy: #142138;
+  --panel: #1c2c49;
+  --panel-light: #24365a;
+  --line: #cfd6e4;
+  --line-dim: #8c97ae;
+  --ball-orange: #e2933c;
+  --opp-red: #c15646;
+  --setter-gold: #e9c46a;
+  --heading-font: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --body-font: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  background: var(--court-navy);
+}
+
+body {
+  font-family: var(--body-font);
+  color: var(--line);
+}
+
+button {
+  font-family: var(--body-font);
+  cursor: pointer;
+  border: none;
+}
+
+input,
+select {
+  font-family: var(--body-font);
+}
+
+button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+#root {
+  min-height: 100vh;
+  background: radial-gradient(ellipse 900px 500px at 50% -10%, #1e304f 0%, var(--court-navy) 60%);
+  display: flex;
+  flex-direction: column;
+}
+
+.app-header {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 20px 20px 16px;
+}
+
+.header-inner {
+  max-width: 480px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.eyebrowless {
+  font-size: 12.5px;
+  color: var(--line-dim);
+  margin-bottom: 4px;
+}
+
+.title {
+  font-family: var(--heading-font);
+  font-weight: 700;
+  font-size: 21px;
+  margin: 0;
+  line-height: 1.25;
+  letter-spacing: -0.01em;
+}
+
+.vs {
+  color: var(--line-dim);
+  font-weight: 400;
+  font-size: 16px;
+}
+
+.set-tally {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-family: var(--heading-font);
+  font-size: 26px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.set-tally-num {
+  color: var(--ball-orange);
+}
+
+.set-tally-num-opp {
+  color: var(--opp-red);
+}
+
+.set-tally-dash {
+  color: var(--line-dim);
+  font-size: 18px;
+}
+
+.app-main {
+  flex: 1;
+  max-width: 480px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 20px 16px 12px;
+}
+
+.card {
+  background: var(--panel);
+  border-radius: 14px;
+  padding: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.card-title {
+  font-family: var(--heading-font);
+  font-weight: 700;
+  font-size: 19px;
+  margin: 0 0 6px;
+}
+
+.card-subtitle {
+  font-size: 13.5px;
+  color: var(--line-dim);
+  margin: 0 0 18px;
+  line-height: 1.5;
+}
+
+.warning-banner {
+  background: rgba(193, 86, 70, 0.18);
+  border: 1px solid rgba(193, 86, 70, 0.5);
+  color: #f0b9b0;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 13px;
+  margin-bottom: 14px;
+}
+
+.label {
+  display: block;
+  font-size: 12.5px;
+  color: var(--line-dim);
+  margin-bottom: 6px;
+  margin-top: 14px;
+}
+
+.input {
+  width: 100%;
+  background: var(--panel-light);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 10px 12px;
+  color: var(--line);
+  font-size: 14.5px;
+  outline: none;
+}
+
+.input:focus {
+  border-color: var(--ball-orange);
+}
+
+.primary-button {
+  width: 100%;
+  margin-top: 22px;
+  background: var(--ball-orange);
+  color: #1a1206;
+  font-weight: 700;
+  font-size: 15px;
+  padding: 12px 16px;
+  border-radius: 9px;
+}
+
+.role-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 12px;
+}
+
+.toggle-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.toggle-button {
+  flex: 1;
+  background: var(--panel-light);
+  color: var(--line-dim);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  padding: 10px 8px;
+  font-size: 13.5px;
+  font-weight: 500;
+}
+
+.toggle-button-active {
+  background: var(--ball-orange);
+  color: #1a1206;
+  border-color: var(--ball-orange);
+  font-weight: 700;
+}
+
+.preview-wrap {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.scoreboard {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  background: var(--panel);
+  border-radius: 14px;
+  padding: 18px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.score-block {
+  text-align: center;
+}
+
+.score-name {
+  font-size: 12.5px;
+  color: var(--line-dim);
+  margin-bottom: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.score-num {
+  font-family: var(--heading-font);
+  font-weight: 700;
+  font-size: 44px;
+  line-height: 1;
+}
+
+.score-num-us {
+  color: var(--ball-orange);
+}
+
+.score-num-opp {
+  color: var(--opp-red);
+}
+
+.score-mid {
+  text-align: center;
+  padding: 0 10px;
+}
+
+.set-label {
+  font-family: var(--heading-font);
+  font-size: 13px;
+  color: var(--line-dim);
+}
+
+.target-label {
+  font-size: 10.5px;
+  color: var(--line-dim);
+  margin-top: 2px;
+}
+
+.serving-indicator {
+  text-align: center;
+  font-size: 12.5px;
+  color: var(--line-dim);
+  margin: 10px 0 4px;
+}
+
+.court-wrap {
+  margin: 16px 0;
+}
+
+.court-field-label {
+  font-size: 12.5px;
+  color: var(--line-dim);
+  margin-bottom: 8px;
+}
+
+.net-label-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.net-line {
+  flex: 1;
+  height: 2px;
+  background: repeating-linear-gradient(90deg, var(--line-dim) 0 6px, transparent 6px 12px);
+}
+
+.net-label {
+  font-size: 11.5px;
+  color: var(--line-dim);
+}
+
+.court-field {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1456 / 405;
+  background: var(--panel-light);
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.court-dot {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  min-width: 52px;
+}
+
+.court-dot-role {
+  font-family: var(--heading-font);
+  font-size: 9.5px;
+  color: var(--line-dim);
+  line-height: 1;
+}
+
+.court-dot-name {
+  font-size: 11px;
+  font-weight: 700;
+  margin-top: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 68px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.setter-tag {
+  position: absolute;
+  top: -8px;
+  right: -2px;
+  font-size: 8.5px;
+  font-weight: 700;
+  color: #1a1206;
+  background: var(--setter-gold);
+  border-radius: 4px;
+  width: 13px;
+  height: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.server-ball {
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 8px;
+  color: var(--ball-orange);
+}
+
+.point-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.point-button {
+  padding: 16px 14px;
+  border-radius: 10px;
+  color: #fff;
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.point-button-us {
+  background: var(--ball-orange);
+}
+
+.point-button-opp {
+  background: var(--opp-red);
+}
+
+.undo-button {
+  width: 100%;
+  margin-top: 12px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: var(--line-dim);
+  border-radius: 9px;
+  padding: 10px 14px;
+  font-size: 13px;
+}
+
+.set-summary-list {
+  margin: 6px 0 4px;
+}
+
+.set-summary-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  font-size: 14px;
+}
+
+.app-footer {
+  max-width: 480px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 6px 16px 26px;
+}
+
+.history-strip {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.history-chip {
+  flex-shrink: 0;
+  background: var(--panel);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 11.5px;
+  color: var(--line-dim);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.history-chip-active {
+  border-color: var(--ball-orange);
+  color: var(--line);
+}
+
+.history-chip-score {
+  font-family: var(--heading-font);
+  font-size: 13px;
+  color: var(--line);
+}
+
+.reset-link {
+  display: block;
+  margin: 14px auto 0;
+  background: transparent;
+  color: var(--line-dim);
+  font-size: 12.5px;
+  text-decoration: underline;
+}
+
+
+.sync-panel{max-width:480px;width:calc(100% - 32px);margin:12px auto 0;background:var(--panel);border:1px solid rgba(255,255,255,.09);border-radius:10px;padding:12px}.sync-head{display:flex;justify-content:space-between;align-items:center;gap:10px}.sync-title{font-size:13px;font-weight:700}.sync-status{font-size:11px;color:var(--line-dim)}.sync-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.sync-input{width:100%;background:var(--panel-light);border:1px solid rgba(255,255,255,.1);border-radius:8px;padding:9px 10px;color:var(--line);font-size:13px}.sync-actions{display:flex;gap:8px;margin-top:8px}.sync-button{flex:1;background:var(--panel-light);color:var(--line);border:1px solid rgba(255,255,255,.12);border-radius:8px;padding:9px;font-size:12px;font-weight:600}.sync-button-primary{background:var(--ball-orange);color:#1a1206}.sync-note{font-size:10.5px;color:var(--line-dim);line-height:1.4;margin-top:8px}.sync-ok{color:#8fd0a5}.sync-error{color:#f0b9b0}@media(max-width:420px){.sync-grid{grid-template-columns:1fr}}
+
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script>
+// ============================================================
+// Volleybal rotatie-tracker — volledig zelfstandige vanilla JS app
+// Geen React, geen Babel, geen internetverbinding nodig.
+// ============================================================
+
+// ---------- 5-1 systeem: vaste rolvolgorde en rotatiedata ----------
+
+var ROLES = ["setter", "dia", "midden1", "midden2", "buiten1", "buiten2"];
+
+var ROLE_LABELS = {
+  setter: "Setter",
+  dia: "Diagonaal (dia)",
+  midden1: "Midden 1",
+  midden2: "Midden 2",
+  buiten1: "Buiten 1",
+  buiten2: "Buiten 2",
+};
+
+var ROLE_TAGS = {
+  setter: "S",
+  dia: "D",
+  midden1: "M1",
+  midden2: "M2",
+  buiten1: "B1",
+  buiten2: "B2",
+};
+
+var BASE_SEQUENCE = ["setter", "buiten1", "midden1", "dia", "buiten2", "midden2"];
+
+var ROTATIONS = {
+  1: { 1: "setter", 2: "buiten1", 3: "midden1", 4: "dia", 5: "buiten2", 6: "midden2" },
+  2: { 1: "buiten1", 2: "midden1", 3: "dia", 4: "buiten2", 5: "midden2", 6: "setter" },
+  3: { 1: "midden1", 2: "dia", 3: "buiten2", 4: "midden2", 5: "setter", 6: "buiten1" },
+  4: { 1: "dia", 2: "buiten2", 3: "midden2", 4: "setter", 5: "buiten1", 6: "midden1" },
+  5: { 1: "buiten2", 2: "midden2", 3: "setter", 4: "buiten1", 5: "midden1", 6: "dia" },
+  6: { 1: "midden2", 2: "setter", 3: "buiten1", 4: "midden1", 5: "dia", 6: "buiten2" },
+};
+
+var SERVE_COORDS = {
+  4: { x: 17, y: 20 },
+  3: { x: 50, y: 20 },
+  2: { x: 83, y: 20 },
+  5: { x: 17, y: 80 },
+  6: { x: 50, y: 80 },
+  1: { x: 83, y: 80 },
+};
+
+var RECEIVE_COORDS = {
+  1: {
+    1: { x: 91.7, y: 81.0 },
+    2: { x: 83.4, y: 73.1 },
+    3: { x: 41.3, y: 25.9 },
+    4: { x: 20.3, y: 40.2 },
+    5: { x: 15.7, y: 88.4 },
+    6: { x: 48.5, y: 88.4 },
+  },
+  2: {
+    1: { x: 72.7, y: 68.6 },
+    2: { x: 80.4, y: 44.9 },
+    3: { x: 64.2, y: 14.8 },
+    4: { x: 18.8, y: 66.2 },
+    5: { x: 54.7, y: 83.2 },
+    6: { x: 60.2, y: 25.7 },
+  },
+  3: {
+    1: { x: 74.7, y: 77.8 },
+    2: { x: 77.1, y: 26.4 },
+    3: { x: 24.3, y: 74.8 },
+    4: { x: 17.4, y: 25.9 },
+    5: { x: 41.8, y: 37.0 },
+    6: { x: 48.1, y: 88.4 },
+  },
+  4: {
+    1: { x: 79.1, y: 88.9 },
+    2: { x: 46.8, y: 77.5 },
+    3: { x: 6.2, y: 20.0 },
+    4: { x: 4.3, y: 9.1 },
+    5: { x: 18.8, y: 77.8 },
+    6: { x: 64.8, y: 77.3 },
+  },
+  5: {
+    1: { x: 66.3, y: 72.6 },
+    2: { x: 73.8, y: 39.3 },
+    3: { x: 53.0, y: 28.1 },
+    4: { x: 25.5, y: 67.7 },
+    5: { x: 48.5, y: 75.8 },
+    6: { x: 55.7, y: 89.4 },
+  },
+  6: {
+    1: { x: 74.8, y: 77.8 },
+    2: { x: 66.5, y: 10.9 },
+    3: { x: 11.6, y: 66.4 },
+    4: { x: 6.4, y: 26.7 },
+    5: { x: 22.3, y: 89.6 },
+    6: { x: 48.1, y: 77.8 },
+  },
+};
+
+function emptyPlayers() {
+  var p = {};
+  ROLES.forEach(function (r) {
+    p[r] = "";
+  });
+  return p;
+}
+
+function roleAtPosition(rotationIndex, posNum) {
+  return ROTATIONS[rotationIndex][posNum];
+}
+
+function newSet(setNumber, prevPlayers, prevStartRole) {
+  return {
+    setNumber: setNumber,
+    players: prevPlayers ? Object.assign({}, prevPlayers) : emptyPlayers(),
+    startRole: prevStartRole || "setter",
+    initialServer: "us",
+    rotationIndex: 1,
+    serving: "us",
+    score: { us: 0, opponent: 0 },
+    history: [],
+    completed: false,
+    winner: null,
+  };
+}
+
+function isSetPoint(score, isDecider) {
+  var target = isDecider ? 15 : 25;
+  var us = score.us,
+    opponent = score.opponent;
+  if ((us >= target || opponent >= target) && Math.abs(us - opponent) >= 2) {
+    return us > opponent ? "us" : "opponent";
+  }
+  return null;
+}
+
+// ---------- state ----------
+
+var STORAGE_KEY = "volleybal-wedstrijd-vanilla";
+
+var state = {
+  teamName: "",
+  opponentName: "",
+  phase: "teamSetup",
+  sets: [],
+  currentSetIndex: 0,
+  warning: "",
+};
+
+function loadState() {
+  try {
+    var raw = window.localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      var data = JSON.parse(raw);
+      state.teamName = data.teamName || "";
+      state.opponentName = data.opponentName || "";
+      state.phase = data.phase || "teamSetup";
+      state.sets = data.sets || [];
+      state.currentSetIndex = data.currentSetIndex || 0;
+    }
+  } catch (e) {
+    // niets opgeslagen of corrupt: gewoon leeg beginnen
+  }
+}
+
+function saveState() {
+  try {
+    window.localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({
+        teamName: state.teamName,
+        opponentName: state.opponentName,
+        phase: state.phase,
+        sets: state.sets,
+        currentSetIndex: state.currentSetIndex,
+      })
+    );
+    scheduleCloudSync();
+  } catch (e) {
+    // opslaan mislukt, negeren
+  }
+}
+
+function currentSet() {
+  return state.sets[state.currentSetIndex];
+}
+
+function setsWon(who) {
+  return state.sets.filter(function (s) {
+    return s.completed && s.winner === who;
+  }).length;
+}
+
+// ---------- acties ----------
+
+function startMatch() {
+  var teamInput = document.getElementById("input-team-name");
+  var oppInput = document.getElementById("input-opponent-name");
+  var team = teamInput ? teamInput.value.trim() : "";
+  var opp = oppInput ? oppInput.value.trim() : "";
+  state.teamName = team;
+  state.opponentName = opp;
+  if (!team || !opp) {
+    state.warning = "Vul beide teamnamen in.";
+    render();
+    return;
+  }
+  state.teamName = team;
+  state.opponentName = opp;
+  state.sets = [newSet(1)];
+  state.currentSetIndex = 0;
+  state.phase = "setSetup";
+  state.warning = "";
+  saveState();
+  render();
+}
+
+function captureRoleInputs() {
+  var set = currentSet();
+  if (!set) return;
+  ROLES.forEach(function (role) {
+    var el = document.getElementById("role-input-" + role);
+    if (el) set.players[role] = el.value;
+  });
+}
+
+function setStartRole(role) {
+  captureRoleInputs();
+  currentSet().startRole = role;
+  render();
+}
+
+function setInitialServer(who) {
+  captureRoleInputs();
+  currentSet().initialServer = who;
+  render();
+}
+
+function confirmLineup() {
+  var set = currentSet();
+  var players = {};
+  var missing = false;
+  ROLES.forEach(function (role) {
+    var el = document.getElementById("role-input-" + role);
+    var val = el ? el.value.trim() : "";
+    if (!val) missing = true;
+    players[role] = val;
+  });
+  set.players = players;
+  if (missing) {
+    state.warning = "Vul voor elke rol een spelersnaam in.";
+    render();
+    return;
+  }
+  set.rotationIndex = BASE_SEQUENCE.indexOf(set.startRole) + 1;
+  set.serving = set.initialServer;
+  set.score = { us: 0, opponent: 0 };
+  set.history = [];
+  state.warning = "";
+  state.phase = "live";
+  saveState();
+  render();
+}
+
+function awardPoint(winner) {
+  var set = currentSet();
+  if (!set || set.completed) return;
+
+  set.history.push({
+    rotationIndex: set.rotationIndex,
+    score: Object.assign({}, set.score),
+    serving: set.serving,
+  });
+
+  set.score[winner] = set.score[winner] + 1;
+
+  if (winner !== set.serving) {
+    set.serving = winner;
+    if (winner === "us") {
+      set.rotationIndex = (set.rotationIndex % 6) + 1;
+    }
+  }
+
+  var isDecider = setsWon("us") === 2 && setsWon("opponent") === 2;
+  var winnerOfSet = isSetPoint(set.score, isDecider);
+  if (winnerOfSet) {
+    set.completed = true;
+    set.winner = winnerOfSet;
+    state.phase = "setOver";
+  }
+
+  saveState();
+  render();
+}
+
+function undoPoint() {
+  var set = currentSet();
+  if (!set || set.history.length === 0) return;
+  var last = set.history.pop();
+  set.rotationIndex = last.rotationIndex;
+  set.score = last.score;
+  set.serving = last.serving;
+  set.completed = false;
+  set.winner = null;
+  saveState();
+  render();
+}
+
+function goToNextSet() {
+  var wonUs = setsWon("us");
+  var wonOpp = setsWon("opponent");
+  if (wonUs >= 3 || wonOpp >= 3) {
+    state.phase = "matchOver";
+    saveState();
+    render();
+    return;
+  }
+  var prev = currentSet();
+  state.sets.push(newSet(prev.setNumber + 1, prev.players, prev.startRole));
+  state.currentSetIndex = state.currentSetIndex + 1;
+  state.phase = "setSetup";
+  saveState();
+  render();
+}
+
+function resetMatch() {
+  if (!window.confirm("Weet je zeker dat je een nieuwe wedstrijd wilt starten? De huidige stand gaat verloren.")) {
+    return;
+  }
+  state.teamName = "";
+  state.opponentName = "";
+  state.sets = [];
+  state.currentSetIndex = 0;
+  state.phase = "teamSetup";
+  state.warning = "";
+  try {
+    window.localStorage.removeItem(STORAGE_KEY);
+  } catch (e) {
+    // negeren
+  }
+  render();
+}
+
+// ---------- html helpers ----------
+
+function esc(str) {
+  return String(str == null ? "" : str)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
+function courtFieldHtml(rotationIndex, players, mode, serving, label) {
+  var coords = mode === "serve" ? SERVE_COORDS : RECEIVE_COORDS[rotationIndex];
+  var dots = "";
+  for (var posNum = 1; posNum <= 6; posNum++) {
+    var role = roleAtPosition(rotationIndex, posNum);
+    var name = players[role];
+    var isSetter = role === "setter";
+    var isServer = posNum === 1 && mode === "serve" && serving === "us";
+    var c = coords[posNum];
+    dots +=
+      '<div class="court-dot' +
+      (isServer ? " court-dot-serving" : "") +
+      '" style="left:' +
+      c.x +
+      "%;top:" +
+      c.y +
+      '%;">' +
+      '<div class="court-dot-role">' +
+      ROLE_TAGS[role] +
+      "</div>" +
+      '<div class="court-dot-name">' +
+      esc(name || "—") +
+      "</div>" +
+      (isSetter ? '<div class="setter-tag">S</div>' : "") +
+      (isServer ? '<div class="server-ball">&#9679;</div>' : "") +
+      "</div>";
+  }
+  return (
+    (label ? '<div class="court-field-label">' + esc(label) + "</div>" : "") +
+    '<div class="net-label-row"><div class="net-line"></div><span class="net-label">net</span></div>' +
+    '<div class="court-field">' +
+    dots +
+    "</div>"
+  );
+}
+
+// ---------- render functies per scherm ----------
+
+function renderHeader() {
+  var team = esc(state.teamName || "Ons team");
+  var opp = esc(state.opponentName || "Tegenstander");
+  var tallyHtml = "";
+  if (state.sets.length > 0) {
+    tallyHtml =
+      '<div class="set-tally">' +
+      '<div class="set-tally-num">' +
+      setsWon("us") +
+      "</div>" +
+      '<div class="set-tally-dash">\u2013</div>' +
+      '<div class="set-tally-num-opp">' +
+      setsWon("opponent") +
+      "</div>" +
+      "</div>";
+  }
+  return (
+    '<header class="app-header"><div class="header-inner">' +
+    '<div><div class="eyebrowless">Volleybal &middot; 5-1 systeem</div>' +
+    '<h1 class="title">' +
+    team +
+    ' <span class="vs">tegen</span> ' +
+    opp +
+    "</h1></div>" +
+    tallyHtml +
+    "</div></header>"
+  );
+}
+
+function renderWarning() {
+  if (!state.warning) return "";
+  return '<div class="warning-banner">' + esc(state.warning) + "</div>";
+}
+
+function renderTeamSetup() {
+  return (
+    '<div class="card">' +
+    '<h2 class="card-title">Nieuwe wedstrijd</h2>' +
+    '<p class="card-subtitle">Vul de naam van je team en de tegenstander in om te beginnen.</p>' +
+    renderWarning() +
+    '<label class="label">Jouw team</label>' +
+    '<input class="input" id="input-team-name" placeholder="bijv. VC Dijkzicht" value="' +
+    esc(state.teamName) +
+    '" />' +
+    '<label class="label">Tegenstander</label>' +
+    '<input class="input" id="input-opponent-name" placeholder="bijv. Smash \'72" value="' +
+    esc(state.opponentName) +
+    '" />' +
+    '<button class="primary-button" data-action="start-match">Wedstrijd starten</button>' +
+    "</div>"
+  );
+}
+
+function renderSetSetup() {
+  var set = currentSet();
+  var roleInputs = ROLES.map(function (role) {
+    return (
+      "<div>" +
+      '<label class="label">' +
+      ROLE_LABELS[role] +
+      "</label>" +
+      '<input class="input" id="role-input-' +
+      role +
+      '" placeholder="Naam" value="' +
+      esc(set.players[role] || "") +
+      '" />' +
+      "</div>"
+    );
+  }).join("");
+
+  var roleOptions = ROLES.map(function (role) {
+    return (
+      '<option value="' +
+      role +
+      '"' +
+      (set.startRole === role ? " selected" : "") +
+      ">" +
+      ROLE_LABELS[role] +
+      "</option>"
+    );
+  }).join("");
+
+  var previewRotation = BASE_SEQUENCE.indexOf(set.startRole) + 1;
+
+  return (
+    '<div class="card">' +
+    '<h2 class="card-title">Opstelling &mdash; set ' +
+    set.setNumber +
+    "</h2>" +
+    '<p class="card-subtitle">Vul per rol de speler in. De app kent het 5-1 rotatieschema en past de opstelling automatisch aan zodra de service wisselt.</p>' +
+    renderWarning() +
+    '<div class="role-grid">' +
+    roleInputs +
+    "</div>" +
+    '<label class="label">Wie begint op positie 1 (service)?</label>' +
+    '<select class="input" id="select-start-role" data-action="set-start-role">' +
+    roleOptions +
+    "</select>" +
+    '<label class="label">Wie serveert eerst deze set?</label>' +
+    '<div class="toggle-row">' +
+    '<button class="toggle-button' +
+    (set.initialServer === "us" ? " toggle-button-active" : "") +
+    '" data-action="set-initial-server" data-server="us">' +
+    esc(state.teamName) +
+    "</button>" +
+    '<button class="toggle-button' +
+    (set.initialServer === "opponent" ? " toggle-button-active" : "") +
+    '" data-action="set-initial-server" data-server="opponent">' +
+    esc(state.opponentName) +
+    "</button>" +
+    "</div>" +
+    '<div class="preview-wrap">' +
+    courtFieldHtml(previewRotation, set.players, "serve", "us", "Startopstelling (bij eigen service)") +
+    "</div>" +
+    '<button class="primary-button" data-action="confirm-lineup">Set beginnen</button>' +
+    "</div>"
+  );
+}
+
+function renderLive() {
+  var set = currentSet();
+  var isDecider = setsWon("us") === 2 && setsWon("opponent") === 2;
+  var target = isDecider ? 15 : 25;
+  var mode = set.serving === "us" ? "serve" : "receive";
+  var servingText =
+    set.serving === "us"
+      ? esc(state.teamName) + " serveert &mdash; basisopstelling"
+      : esc(state.opponentName) + " serveert &mdash; " + esc(state.teamName) + " in ontvangst";
+
+  return (
+    '<div class="scoreboard">' +
+    '<div class="score-block"><div class="score-name">' +
+    esc(state.teamName) +
+    '</div><div class="score-num score-num-us">' +
+    set.score.us +
+    "</div></div>" +
+    '<div class="score-mid"><div class="set-label">set ' +
+    set.setNumber +
+    '</div><div class="target-label">tot ' +
+    target +
+    "</div></div>" +
+    '<div class="score-block"><div class="score-name">' +
+    esc(state.opponentName) +
+    '</div><div class="score-num score-num-opp">' +
+    set.score.opponent +
+    "</div></div>" +
+    "</div>" +
+    '<div class="serving-indicator">' +
+    servingText +
+    "</div>" +
+    '<div class="court-wrap">' +
+    courtFieldHtml(set.rotationIndex, set.players, mode, set.serving, "") +
+    "</div>" +
+    '<div class="point-buttons">' +
+    '<button class="point-button point-button-us" data-action="award-point" data-winner="us">Punt voor ' +
+    esc(state.teamName) +
+    "</button>" +
+    '<button class="point-button point-button-opp" data-action="award-point" data-winner="opponent">Punt voor ' +
+    esc(state.opponentName) +
+    "</button>" +
+    "</div>" +
+    '<button class="undo-button" data-action="undo-point"' +
+    (set.history.length === 0 ? " disabled" : "") +
+    ">Laatste punt ongedaan maken</button>"
+  );
+}
+
+function renderSetOver() {
+  var set = currentSet();
+  var winnerName = set.winner === "us" ? state.teamName : state.opponentName;
+  return (
+    '<div class="card">' +
+    '<h2 class="card-title">Set ' +
+    set.setNumber +
+    " gewonnen door " +
+    esc(winnerName) +
+    "</h2>" +
+    '<p class="card-subtitle">Eindstand: ' +
+    set.score.us +
+    " &ndash; " +
+    set.score.opponent +
+    ". Stand in sets: " +
+    setsWon("us") +
+    " &ndash; " +
+    setsWon("opponent") +
+    ".</p>" +
+    '<button class="primary-button" data-action="next-set">Volgende set voorbereiden</button>' +
+    "</div>"
+  );
+}
+
+function renderMatchOver() {
+  var wonUs = setsWon("us");
+  var wonOpp = setsWon("opponent");
+  var matchWinner = wonUs > wonOpp ? state.teamName : state.opponentName;
+  var rows = state.sets
+    .map(function (s) {
+      return (
+        '<div class="set-summary-row"><span>Set ' +
+        s.setNumber +
+        "</span><span>" +
+        s.score.us +
+        " &ndash; " +
+        s.score.opponent +
+        "</span></div>"
+      );
+    })
+    .join("");
+  return (
+    '<div class="card">' +
+    '<h2 class="card-title">' +
+    esc(matchWinner) +
+    " wint de wedstrijd</h2>" +
+    '<p class="card-subtitle">Eindstand in sets: ' +
+    wonUs +
+    " &ndash; " +
+    wonOpp +
+    "</p>" +
+    '<div class="set-summary-list">' +
+    rows +
+    "</div>" +
+    '<button class="primary-button" data-action="reset-match">Nieuwe wedstrijd starten</button>' +
+    "</div>"
+  );
+}
+
+function renderFooter() {
+  if (state.sets.length === 0 || state.phase === "teamSetup") return "";
+  var chips = state.sets
+    .map(function (s, i) {
+      return (
+        '<div class="history-chip' +
+        (i === state.currentSetIndex ? " history-chip-active" : "") +
+        '"><span>Set ' +
+        s.setNumber +
+        '</span><span class="history-chip-score">' +
+        s.score.us +
+        "&ndash;" +
+        s.score.opponent +
+        "</span></div>"
+      );
+    })
+    .join("");
+  return (
+    '<footer class="app-footer">' +
+    '<div class="history-strip">' +
+    chips +
+    "</div>" +
+    '<button class="reset-link" data-action="reset-match">Nieuwe wedstrijd starten</button>' +
+    "</footer>"
+  );
+}
+
+// ---------- hoofd render ----------
+
+function render() {
+  var main = "";
+  switch (state.phase) {
+    case "teamSetup":
+      main = renderTeamSetup();
+      break;
+    case "setSetup":
+      main = renderSetSetup();
+      break;
+    case "live":
+      main = renderLive();
+      break;
+    case "setOver":
+      main = renderSetOver();
+      break;
+    case "matchOver":
+      main = renderMatchOver();
+      break;
+    default:
+      main = renderTeamSetup();
+  }
+
+  var html = renderHeader() + syncPanelHtml() + '<main class="app-main">' + main + "</main>" + renderFooter();
+
+  var root = document.getElementById("root");
+  root.innerHTML = html;
+
+  // focus terugzetten is niet nodig: inputs worden alleen bij bevestigen uitgelezen,
+  // dus tussentijds typen triggert geen re-render.
+}
+
+// ---------- event delegatie ----------
+
+function handleClick(e) {
+  var btn = e.target.closest("[data-action]");
+  if (!btn) return;
+  var action = btn.getAttribute("data-action");
+  switch (action) {
+    case "start-match":
+      startMatch();
+      break;
+    case "confirm-lineup":
+      confirmLineup();
+      break;
+    case "set-initial-server":
+      setInitialServer(btn.getAttribute("data-server"));
+      break;
+    case "award-point":
+      awardPoint(btn.getAttribute("data-winner"));
+      break;
+    case "undo-point":
+      undoPoint();
+      break;
+    case "next-set":
+      goToNextSet();
+      break;
+    case "reset-match": resetMatch(); break;
+    case "save-sync": saveSyncConfig(); break;
+    case "sync-now": pushCloud(); break;
+    case "clear-sync": clearSyncConfig(); break;
+  }
+}
+
+function handleChange(e) {
+  var el = e.target.closest("[data-action]");
+  if (!el) return;
+  var action = el.getAttribute("data-action");
+  if (action === "set-start-role") {
+    setStartRole(el.value);
+  }
+}
+
+
+// ---------- Azure cloud synchronisatie ----------
+var SYNC_CONFIG_KEY = "volleybal-sync-config-v1";
+var SYNC_PENDING_KEY = "volleybal-sync-pending-v1";
+var syncState = { busy:false, message:"Alleen lokaal", kind:"", timer:null };
+function getSyncConfig(){try{return JSON.parse(localStorage.getItem(SYNC_CONFIG_KEY)||"null");}catch(e){return null;}}
+function setSyncMessage(message,kind){syncState.message=message;syncState.kind=kind||"";var el=document.getElementById("sync-status");if(el){el.textContent=message;el.className="sync-status "+(kind?"sync-"+kind:"");}}
+function cloudBundle(){return {schemaVersion:1,updatedAt:new Date().toISOString(),match:JSON.parse(localStorage.getItem(STORAGE_KEY)||"null"),stats:JSON.parse(localStorage.getItem("volleybal-spelerstatistieken-v1")||"{}")};}
+function applyCloudBundle(bundle){if(!bundle)return;if(bundle.match)localStorage.setItem(STORAGE_KEY,JSON.stringify(bundle.match));if(bundle.stats)localStorage.setItem("volleybal-spelerstatistieken-v1",JSON.stringify(bundle.stats));}
+async function cloudRequest(method,bundle){var cfg=getSyncConfig();if(!cfg||!cfg.teamId||!cfg.syncKey)throw new Error("Vul team-ID en synchronisatiecode in.");var response=await fetch("/api/sync",{method:method,headers:{"Content-Type":"application/json","x-team-id":cfg.teamId,"x-sync-key":cfg.syncKey},body:method==="PUT"?JSON.stringify(bundle):undefined});var data=await response.json().catch(function(){return{};});if(!response.ok)throw new Error(data.error||("Synchronisatie mislukt ("+response.status+")"));return data;}
+async function pushCloud(){if(!navigator.onLine){localStorage.setItem(SYNC_PENDING_KEY,"1");setSyncMessage("Offline, wijziging staat in wachtrij","");return;}if(syncState.busy)return;syncState.busy=true;setSyncMessage("Synchroniseren...","");try{var result=await cloudRequest("PUT",cloudBundle());localStorage.removeItem(SYNC_PENDING_KEY);setSyncMessage("Gesynchroniseerd "+new Date(result.updatedAt||Date.now()).toLocaleTimeString("nl-NL",{hour:"2-digit",minute:"2-digit"}),"ok");}catch(e){localStorage.setItem(SYNC_PENDING_KEY,"1");setSyncMessage(e.message,"error");}finally{syncState.busy=false;}}
+async function pullCloud(reloadAfter){if(syncState.busy)return;syncState.busy=true;setSyncMessage("Cloudgegevens ophalen...","");try{var row=await cloudRequest("GET");if(row&&row.bundle){var local=cloudBundle(),remoteTime=Date.parse(row.bundle.updatedAt||0),localTime=Date.parse(local.updatedAt||0);applyCloudBundle(row.bundle);setSyncMessage("Cloudgegevens ontvangen","ok");if(reloadAfter)location.reload();}else{setSyncMessage("Nog geen cloudgegevens, lokaal wordt geupload","ok");await pushCloud();}}catch(e){setSyncMessage(e.message,"error");}finally{syncState.busy=false;}}
+function scheduleCloudSync(){if(!getSyncConfig())return;localStorage.setItem(SYNC_PENDING_KEY,"1");clearTimeout(syncState.timer);syncState.timer=setTimeout(pushCloud,900);}
+function saveSyncConfig(){var team=(document.getElementById("sync-team")||{}).value||"",key=(document.getElementById("sync-key")||{}).value||"";team=team.trim();key=key.trim();if(!team||!key){setSyncMessage("Vul beide synchronisatievelden in","error");return;}localStorage.setItem(SYNC_CONFIG_KEY,JSON.stringify({teamId:team,syncKey:key}));setSyncMessage("Koppeling opgeslagen","ok");pullCloud(true);}
+function clearSyncConfig(){if(!confirm("Cloudkoppeling op dit apparaat verwijderen? Lokale wedstrijdgegevens blijven staan."))return;localStorage.removeItem(SYNC_CONFIG_KEY);localStorage.removeItem(SYNC_PENDING_KEY);setSyncMessage("Alleen lokaal","");render();}
+function syncPanelHtml(){var cfg=getSyncConfig()||{};return '<section class="sync-panel"><div class="sync-head"><div class="sync-title">Cloudsynchronisatie</div><div id="sync-status" class="sync-status '+(syncState.kind?'sync-'+syncState.kind:'')+'">'+esc(syncState.message)+'</div></div><div class="sync-grid"><input id="sync-team" class="sync-input" placeholder="Team-ID, bijv. dames1" value="'+esc(cfg.teamId||"")+'"><input id="sync-key" class="sync-input" type="password" autocomplete="new-password" placeholder="Gedeelde synchronisatiecode" value="'+esc(cfg.syncKey||"")+'"></div><div class="sync-actions"><button class="sync-button sync-button-primary" data-action="save-sync">Koppelen / ophalen</button><button class="sync-button" data-action="sync-now">Nu synchroniseren</button><button class="sync-button" data-action="clear-sync">Ontkoppelen</button></div><div class="sync-note">Gebruik op ieder apparaat exact dezelfde Team-ID en synchronisatiecode. Behandel de code als een wachtwoord.</div></section>';}
+window.addEventListener("online",function(){if(localStorage.getItem(SYNC_PENDING_KEY)==="1")pushCloud();});
+
+function init() {
+  loadState();
+  if(getSyncConfig()) syncState.message=navigator.onLine?"Cloudkoppeling actief":"Offline, lokale modus";
+  var root = document.getElementById("root");
+  root.addEventListener("click", handleClick);
+  root.addEventListener("change", handleChange);
+  render();
+}
+
+document.addEventListener("DOMContentLoaded", init);
+if("serviceWorker" in navigator&&location.protocol!=="file:")window.addEventListener("load",function(){navigator.serviceWorker.register("./sw.js");});
+
+</script>
+</body>
+</html>
