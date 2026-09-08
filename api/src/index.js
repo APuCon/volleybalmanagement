@@ -1,1 +1,1 @@
-require("./functions/sync");
+require('./functions/sync')

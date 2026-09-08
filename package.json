@@ -1,6 +1,6 @@
 {
-  "name": "volleybal-tracker-sync",
-  "version": "4.0.0",
+  "name": "volleybal-tracker",
+  "version": "5.0.0",
   "private": true,
   "scripts": {
     "build": "node build.js"

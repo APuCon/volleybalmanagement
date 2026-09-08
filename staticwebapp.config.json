@@ -5,8 +5,7 @@
   "navigationFallback": {
     "rewrite": "/index.html",
     "exclude": [
-      "/api/*",
-      "*.{js,json,webmanifest}"
+      "/api/*"
     ]
   }
 }

@@ -1,1 +1,1 @@
-const fs=require("fs"),path=require("path");const d=path.join(__dirname,"dist");fs.rmSync(d,{recursive:true,force:true});fs.mkdirSync(d);["index.html","manifest.webmanifest","sw.js","staticwebapp.config.json"].forEach(f=>fs.copyFileSync(path.join(__dirname,f),path.join(d,f)));console.log("Build complete: dist/");
+const fs=require('fs'),p=require('path'),d=p.join(__dirname,'dist');fs.rmSync(d,{recursive:true,force:true});fs.mkdirSync(d);['index.html','manifest.webmanifest','sw.js','staticwebapp.config.json'].forEach(f=>fs.copyFileSync(p.join(__dirname,f),p.join(d,f)))
